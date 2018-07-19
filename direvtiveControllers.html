@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html ng-app="exampleApp">
+<head>
+    <title>Directive Controllers</title>
+    <script src="ngmodules/angular.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <script>
+        angular.module("exampleApp", [])
+            .controller("defaultCtrl", function ($scope) {
+                $scope.products = [
+                    { name: "Apples", price: 1.20, quantity: 2 },
+                    { name: "Bananas", price: 2.42, quantity: 3 },
+                    { name: "Pears", price: 2.02, quantity: 1 },
+                ];
+            })
+            .directive("resetTotals", function () {
+                return {
+                    scope: {
+                        data: "=productData",
+                        propName: "@propertyName"
+                    },
+                    require: "^productTable",
+                    templateUrl: "./views/resetTotals.directive.html",
+                    link: function (scope, element, attrs, ctrl) {
+                        scope.reset = function () {
+                            scope.data.forEach(datagram => datagram[scope.propName] = 0);
+                            ctrl.updateTotal();
+                        }
+                    }
+                }
+            })
+            .directive("productItem", function () {
+                return {
+                    templateUrl: "./views/product.directive.html",
+                    require: "^productTable",
+                    link: function (scope, element, attrs, ctrl) {
+                        scope.$watch("item.quantity", function () {
+                            ctrl.updateTotal();
+                        })
+                    }
+                }
+            })
+            .directive("productTable", function () {
+                return {
+                    transclude: true,
+                    scope: {
+                        value: "=productTable",
+                        data: "=productData"
+                    },
+                    controller: function ($scope, $element, $attrs) {
+                      this.updateTotal = function () {
+                          var total = 0;
+                          $scope.data
+                              .map(product => product.quantity)
+                              .forEach(quantity => total+=quantity);
+                          $scope.value = total;
+                      }
+                    }
+                }
+            });
+    </script>
+</head>
+<body ng-controller="defaultCtrl">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <table class="table table-striped" product-table="totalValue" product-data="products" ng-transclude>
+                <tr>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                </tr>
+                <tr ng-repeat="item in products" product-item></tr>
+                <tr>
+                    <th>Total:</th>
+                    <td>{{ totalValue }}</td>
+                </tr>
+                <tr reset-totals product-data="products" property-name="quantity"></tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

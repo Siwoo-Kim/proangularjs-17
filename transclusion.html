@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html ng-app="exampleApp">
+<head>
+    <title>Translusion</title>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="ngmodules/angular.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <script>
+        angular.module("exampleApp", [])
+            .directive("panel", function () {
+                return {
+                    link: function (scope, element, attributes) {
+                            scope.dataSource = "directive";
+                        },
+                    restrict: "E",
+                    transclude: true,
+                    scope: true,
+                    templateUrl: "./views/panel.directive.html"
+                }
+            })
+            .controller("defaultCtrl", function ($scope) {
+                $scope.dataSource = "controller";
+            })
+    </script>
+</head>
+<body ng-controller="defaultCtrl">
+    <panel>
+        This is a dataSource for: {{ dataSource }}
+    </panel>
+</body>
+</html>

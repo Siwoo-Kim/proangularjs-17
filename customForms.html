@@ -1,0 +1,59 @@
+
+<!DOCTYPE HTML>
+<html ng-app="exampleApp">
+<head>
+    <title>CustomForms</title>
+    <script src="ngmodules/angular.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+       angular.module("exampleApp", [])
+           .controller("defaultCtrl", function ($scope) {
+               $scope.dataValue = "Not Sure";
+           })
+           .directive("triButton", function () {
+               return {
+                   restrict: "E",
+                   replace: true,
+                   require: "ngModel",
+                   templateUrl: "./views/triButton.directive.html",
+                   link: function (scope, element, attrs, ctrl) {
+                       element.on("click", function (event) {
+                           setSelected(event.target.innerText);
+                           scope.$apply(() => ctrl.$setViewValue(event.target.innerText));
+                       });
+
+                       var setSelected = function (value) {
+                           var buttons = element.find("button");
+                           buttons.removeClass("btn-primary");
+                           for(let i=0; i<buttons.length; i++) {
+                               if(buttons.eq(i).text() === value) {
+                                   buttons.eq(i).addClass("btn-primary");
+                               }
+                           }
+                       };
+                       setSelected(scope.dataValue);
+                       //scope.$watch("dataValue", () => setSelected(scope.dataValue));
+                       ctrl.$render = function () {
+                           setSelected(ctrl.$viewValue || "Not Sure");
+                       }
+                   }
+
+               }
+           })
+    </script>
+</head>
+<body ng-controller="defaultCtrl">
+    <div>
+        <tri-button ng-model="dataValue"></tri-button>
+    </div>
+    <div class="well">
+        Value:
+        <select ng-model="dataValue">
+            <option>Yes</option>
+            <option>No</option>
+            <option>Not Sure</option>
+        </select>
+    </div>
+</body>
+</html>
